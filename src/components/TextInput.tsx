@@ -31,11 +31,14 @@ const TextInput: React.FC = () => {
   };
 
   const parseDateRange = (dateStr: string): { start: Date; end: Date } => {
-    const [start, end] = dateStr.split(' - ');
-    return {
-      start: new Date(start),
-      end: new Date(end)
-    };
+    const [start, end] = dateStr.split(' - ').map(date => {
+      // Convert format "Jan 08,2025" to "2025-01-08"
+      const [month, day, year] = date.split(/[,\s]/);
+      const monthNum = new Date(`${month} 1, 2000`).getMonth() + 1;
+      return new Date(`${year}-${monthNum.toString().padStart(2, '0')}-${day.padStart(2, '0')}`);
+    });
+    
+    return { start, end };
   };
 
   const parseText = (text: string): Event[] => {

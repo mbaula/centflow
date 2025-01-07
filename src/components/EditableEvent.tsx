@@ -4,6 +4,8 @@ import { toast } from 'react-toastify';
 import TimePicker from 'react-time-picker';
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 interface EditableEventProps {
   event: Event;
@@ -82,6 +84,26 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
         ...editedEvent.meetingTime,
         days,
       },
+    };
+    setEditedEvent(updatedEvent);
+    onUpdate(updatedEvent);
+  };
+
+  const handleDateRangeChange = (date: Date | null, field: 'start' | 'end') => {
+    if (!date) {
+      toast.error('Date is required');
+      return;
+    }
+
+    const updatedEvent = {
+      ...editedEvent,
+      meetingTime: {
+        ...editedEvent.meetingTime,
+        dateRange: {
+          ...editedEvent.meetingTime.dateRange,
+          [field]: date
+        }
+      }
     };
     setEditedEvent(updatedEvent);
     onUpdate(updatedEvent);
@@ -186,6 +208,26 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
             </div>
           </div>
           {errors.days && <p className="text-red-500 text-sm">{errors.days}</p>}
+
+          <div className="flex items-center">
+            <span className="font-semibold w-24">Date Range:</span>
+            <div className="flex gap-2 items-center">
+              <DatePicker
+                selected={editedEvent.meetingTime.dateRange.start}
+                onChange={(date) => handleDateRangeChange(date, 'start')}
+                dateFormat="MMM dd, yyyy"
+                className="bg-transparent text-white border rounded px-2 py-1 w-32"
+              />
+              <span>-</span>
+              <DatePicker
+                selected={editedEvent.meetingTime.dateRange.end}
+                onChange={(date) => handleDateRangeChange(date, 'end')}
+                dateFormat="MMM dd, yyyy"
+                className="bg-transparent text-white border rounded px-2 py-1 w-32"
+                minDate={editedEvent.meetingTime.dateRange.start}
+              />
+            </div>
+          </div>
 
           <div className="flex items-center">
             <span className="font-semibold w-24">Location:</span>
