@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Event } from '@/types/Event';
 import * as chrono from 'chrono-node';
 import EditableEvent from '@/components/EditableEvent';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const TextInput: React.FC = () => {
   const [text, setText] = useState('');
@@ -102,6 +104,10 @@ const TextInput: React.FC = () => {
   };
 
   const handleParse = () => {
+    if (!text.trim()) {
+      toast.error('Please paste your course schedule before parsing.');
+      return;
+    }
     const events = parseText(text);
     setParsedEvents(events);
   };
@@ -112,7 +118,7 @@ const TextInput: React.FC = () => {
         <textarea
           value={text}
           onChange={handleChange}
-          placeholder="Paste your course schedule here"
+          placeholder={`1. Go to the MyCentennial website.\n2. Go to the Academics page.\n3. Click "View Your Timetable" under the "Steps to Register" card.\n4. Scroll all the way down and click "Detailed Schedule."\n5. Select the term you want to add.\n6. Press Ctrl + A to select all the page content, then press Ctrl + C to copy it.\n7. Paste the copied content here.`}
           className="w-full p-2 border rounded-md"
           rows={10}
           style={{ color: 'black' }}
@@ -125,12 +131,11 @@ const TextInput: React.FC = () => {
         </button>
       </div>
 
+      <ToastContainer />
+
       {parsedEvents.length > 0 && (
         <div className="mt-4">
           <h2 className="text-xl font-bold mb-2">Parsed Events</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            Click on any field to edit the information before adding to your calendar. All changes are saved automatically.
-          </p>
           <div className="space-y-4">
             {parsedEvents.map((event, index) => (
               <EditableEvent
