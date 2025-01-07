@@ -5,6 +5,7 @@ import * as chrono from 'chrono-node';
 import EditableEvent from '@/components/EditableEvent';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GoogleCalendarButton from './GoogleCalendarButton';
 
 const TextInput: React.FC = () => {
   const [text, setText] = useState('');
@@ -138,7 +139,10 @@ const TextInput: React.FC = () => {
 
       {parsedEvents.length > 0 && (
         <div className="mt-4">
-          <h2 className="text-xl font-bold mb-2">Parsed Events</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Parsed Events</h2>
+            <GoogleCalendarButton events={parsedEvents} />
+          </div>
           <div className="space-y-4">
             {parsedEvents.map((event, index) => (
               <EditableEvent
