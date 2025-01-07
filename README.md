@@ -1,41 +1,77 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# centflow 📚
 
-## Getting Started
+I made centflow so I can add my centennial courses to my google calendar without having to manually add each course.
 
-First, run the development server:
+centflow solves these problems by:
+- Parsing your course schedule directly from mycentennial
+- Creating a separate calendar for your courses
+- Color-coding different courses for better visibility
+- Handling recurring classes automatically
+- Supporting both lectures and labs
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Setup Guide 🚀
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- A Google account
+
+### 1. Clone the Repository
+```
+git clone https://github.com/your-repo/centflow.git
+cd centflow
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Set Up Google Calendar API
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (e.g., "Centflow")
+3. Enable the Google Calendar API:
+   - Go to "APIs & Services" > "Library"
+   - Search for "Google Calendar API"
+   - Click "Enable"
+4. Set up OAuth 2.0:
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth client ID"
+   - Choose "Web application"
+   - Add authorized JavaScript origins:
+     - `http://localhost:3000` (for development)
+   - Add authorized redirect URIs:
+     - `http://localhost:3000`
+5. Copy your Client ID
 
-## Learn More
+### 4. Configure Environment Variables
+1. Create a `.env.local` file in the root directory
+2. Make the following changes:
+    ```
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID= YOUR_CLIENT_ID
+    GOOGLE_CLIENT_SECRET= YOUR_CLIENT_SECRET
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Run the Development Server
+```
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 6. Use Centflow
+1. Open `http://localhost:3000` in your browser
+2. Follow the instructions to copy your schedule from mycentennial
+3. Paste it into Centflow
+4. Click "Parse Schedule" to see your courses
+5. Review the parsed events and make any necessary adjustments
+6. Click "Add to Google Calendar" to import your schedule
 
-## Deploy on Vercel
+## Features ✨
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# centflow
-A tool to add courses from mycentennial to Google Calendar in one click.
->>>>>>> 17ceb09ecadec213a359017c7820e2bfcd6abb54
+- 📋 Easy copy-paste from mycentennial
+- 🎨 Color-coded courses
+- 🔄 Automatic handling of recurring classes
+- 📅 Separate calendar creation
+- ✏️ Edit capabilities before adding to calendar
+- 📱 Responsive design
