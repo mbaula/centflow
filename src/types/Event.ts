@@ -1,7 +1,6 @@
 export interface Event {
   courseCode: string;
   courseName: string;
-  crn: string;
   meetingTime: {
     type: string;
     startTime: string;

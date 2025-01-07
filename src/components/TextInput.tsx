@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Event } from '@/types/Event';
 import * as chrono from 'chrono-node';
+import EditableEvent from '@/components/EditableEvent';
 
 const TextInput: React.FC = () => {
   const [text, setText] = useState('');
@@ -77,7 +78,6 @@ const TextInput: React.FC = () => {
                 const event: Event = {
                     courseCode,
                     courseName: courseName.trim(),
-                    crn,
                     meetingTime: {
                         type,
                         ...parseTimeRange(time),
@@ -128,18 +128,20 @@ const TextInput: React.FC = () => {
       {parsedEvents.length > 0 && (
         <div className="mt-4">
           <h2 className="text-xl font-bold mb-2">Parsed Events</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Click on any field to edit the information before adding to your calendar. All changes are saved automatically.
+          </p>
           <div className="space-y-4">
             {parsedEvents.map((event, index) => (
-              <div key={index} className="border p-4 rounded-md">
-                <h3 className="font-bold">{event.courseName} ({event.courseCode})</h3>
-                <p><strong>CRN:</strong> {event.crn}</p>
-                <p><strong>Type:</strong> {event.meetingTime.type}</p>
-                <p><strong>Time:</strong> {event.meetingTime.startTime} - {event.meetingTime.endTime}</p>
-                <p><strong>Days:</strong> {event.meetingTime.days.join(', ')}</p>
-                <p><strong>Location:</strong> {event.meetingTime.location}</p>
-                <p><strong>Date Range:</strong> {event.meetingTime.dateRange.start.toLocaleDateString()} - {event.meetingTime.dateRange.end.toLocaleDateString()}</p>
-                <p><strong>Instructor:</strong> {event.meetingTime.instructor}</p>
-              </div>
+              <EditableEvent
+                key={index}
+                event={event}
+                onUpdate={(updatedEvent) => {
+                  const updatedEvents = [...parsedEvents];
+                  updatedEvents[index] = updatedEvent;
+                  setParsedEvents(updatedEvents);
+                }}
+              />
             ))}
           </div>
         </div>
