@@ -110,17 +110,17 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
   };
 
   const getInputClass = (fieldName: string) => {
-    return `cursor-pointer hover:opacity-80 focus:outline-none px-1 rounded ${
+    return `cursor-pointer hover:bg-gray-100 focus:outline-none px-2 py-1 rounded border ${
       editingField === fieldName
-        ? 'bg-white text-black'
-        : 'bg-transparent text-white'
+        ? 'bg-white text-black border-blue-300'
+        : 'bg-transparent text-gray-700 border-transparent'
     }`;
   };
 
   return (
-    <div className="border p-4 rounded-md relative bg-black">
-      <div className="space-y-3">
-        <div className="flex gap-2 items-baseline">
+    <div className="p-4 relative bg-gray-50">
+      <div className="space-y-4">
+        <div className="flex gap-3 items-baseline">
           <input
             type="text"
             value={editedEvent.courseName}
@@ -129,23 +129,23 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
             onFocus={() => setEditingField('courseName')}
             onBlur={() => handleBlur('courseName', editedEvent.courseName)}
           />
-          <span>(</span>
+          <span className="text-gray-500">(</span>
           <input
             type="text"
             value={editedEvent.courseCode}
             onChange={(e) => handleChange(e, 'courseCode')}
-            className={`${getInputClass('courseCode')} w-24`}
+            className={`${getInputClass('courseCode')} w-48 text-sm`}
             onFocus={() => setEditingField('courseCode')}
             onBlur={() => handleBlur('courseCode', editedEvent.courseCode)}
           />
-          <span>)</span>
+          <span className="text-gray-500">)</span>
         </div>
         {errors.courseName && <p className="text-red-500 text-sm">{errors.courseName}</p>}
         {errors.courseCode && <p className="text-red-500 text-sm">{errors.courseCode}</p>}
 
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center">
-            <span className="font-semibold w-24">Type:</span>
+            <span className="font-semibold w-20 text-gray-600">Type:</span>
             <input
               type="text"
               value={editedEvent.meetingTime.type}
@@ -158,26 +158,26 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
           {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
 
           <div className="flex items-center">
-            <span className="font-semibold w-24">Time:</span>
+            <span className="font-semibold w-20 text-gray-600">Time:</span>
             <div className="flex gap-2 items-center">
-              <TimePicker
-                onChange={(time) => handleTimeChange(time, 'startTime')}
+              <input
+                type="text"
                 value={editedEvent.meetingTime.startTime}
-                className="time-picker-custom"
-                clearIcon={null}
-                clockIcon={null}
-                format="hh:mm a"
-                disableClock={true}
+                onChange={(e) => handleChange(e, 'meetingTime', 'startTime')}
+                className={`${getInputClass('startTime')} w-24`}
+                onFocus={() => setEditingField('startTime')}
+                onBlur={() => handleBlur('startTime', editedEvent.meetingTime.startTime)}
+                placeholder="2:30 PM"
               />
-              <span>-</span>
-              <TimePicker
-                onChange={(time) => handleTimeChange(time, 'endTime')}
+              <span className="text-gray-500">-</span>
+              <input
+                type="text"
                 value={editedEvent.meetingTime.endTime}
-                className="time-picker-custom"
-                clearIcon={null}
-                clockIcon={null}
-                format="hh:mm a"
-                disableClock={true}
+                onChange={(e) => handleChange(e, 'meetingTime', 'endTime')}
+                className={`${getInputClass('endTime')} w-24`}
+                onFocus={() => setEditingField('endTime')}
+                onBlur={() => handleBlur('endTime', editedEvent.meetingTime.endTime)}
+                placeholder="4:20 PM"
               />
             </div>
           </div>
@@ -185,15 +185,15 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
           {errors.endTime && <p className="text-red-500 text-sm">{errors.endTime}</p>}
 
           <div className="flex items-center">
-            <span className="font-semibold w-24">Days:</span>
+            <span className="font-semibold w-20 text-gray-600">Days:</span>
             <div className="flex gap-2 flex-wrap">
               {daysOfWeek.map((day) => (
                 <label
                   key={day}
-                  className={`flex items-center cursor-pointer px-2 py-1 rounded ${
+                  className={`flex items-center cursor-pointer px-3 py-1 rounded text-sm font-medium ${
                     editedEvent.meetingTime.days.includes(day)
                       ? 'bg-blue-500 text-white'
-                      : 'bg-gray-700'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   <input
@@ -210,27 +210,27 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
           {errors.days && <p className="text-red-500 text-sm">{errors.days}</p>}
 
           <div className="flex items-center">
-            <span className="font-semibold w-24">Date Range:</span>
+            <span className="font-semibold w-20 text-gray-600">Date Range:</span>
             <div className="flex gap-2 items-center">
               <DatePicker
                 selected={editedEvent.meetingTime.dateRange.start}
                 onChange={(date) => handleDateRangeChange(date, 'start')}
                 dateFormat="MMM dd, yyyy"
-                className="bg-transparent text-white border rounded px-2 py-1 w-32"
+                className="bg-white text-gray-700 border border-gray-300 rounded px-2 py-1 w-32"
               />
-              <span>-</span>
+              <span className="text-gray-500">-</span>
               <DatePicker
                 selected={editedEvent.meetingTime.dateRange.end}
                 onChange={(date) => handleDateRangeChange(date, 'end')}
                 dateFormat="MMM dd, yyyy"
-                className="bg-transparent text-white border rounded px-2 py-1 w-32"
+                className="bg-white text-gray-700 border border-gray-300 rounded px-2 py-1 w-32"
                 minDate={editedEvent.meetingTime.dateRange.start}
               />
             </div>
           </div>
 
           <div className="flex items-center">
-            <span className="font-semibold w-24">Location:</span>
+            <span className="font-semibold w-20 text-gray-600">Location:</span>
             <input
               type="text"
               value={editedEvent.meetingTime.location}
@@ -243,7 +243,7 @@ const EditableEvent: React.FC<EditableEventProps> = ({ event, onUpdate }) => {
           {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
 
           <div className="flex items-center">
-            <span className="font-semibold w-24">Instructor:</span>
+            <span className="font-semibold w-20 text-gray-600">Instructor:</span>
             <input
               type="text"
               value={editedEvent.meetingTime.instructor}
