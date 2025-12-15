@@ -5,6 +5,7 @@ import ScheduleEventEditor from './ScheduleEventEditor';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleCalendarButton from './GoogleCalendarButtonSchedule';
+import CalendarPreview from './CalendarPreview';
 
 const ScheduleInput: React.FC = () => {
   const [jsonInput, setJsonInput] = useState('');
@@ -86,10 +87,17 @@ const ScheduleInput: React.FC = () => {
                 Timezone: {scheduleData.timezone} • {parsedEvents.length} events
               </p>
             </div>
-            <GoogleCalendarButton 
-              events={parsedEvents} 
-              timezone={scheduleData.timezone}
-            />
+            <div className="flex gap-2">
+              <CalendarPreview 
+                events={parsedEvents} 
+                timezone={scheduleData.timezone}
+                onEventsUpdate={setParsedEvents}
+              />
+              <GoogleCalendarButton 
+                events={parsedEvents} 
+                timezone={scheduleData.timezone}
+              />
+            </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
