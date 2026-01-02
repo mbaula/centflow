@@ -23,9 +23,27 @@ const CALENDAR_COLORS = [
 ];
 
 const GoogleCalendarButtonSchedule: React.FC<GoogleCalendarButtonScheduleProps> = ({ events, timezone }) => {
-  const createCalendar = async (accessToken: string) => {
+  const findOrCreateCalendar = async (accessToken: string) => {
     try {
-      const response = await axios.post(
+      // First, try to find an existing calendar
+      const listResponse = await axios.get(
+        'https://www.googleapis.com/calendar/v3/users/me/calendarList',
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      const existingCalendar = listResponse.data.items.find(
+        (cal: any) => cal.summary === 'Centflow Schedule'
+      );
+
+      if (existingCalendar) {
+        return existingCalendar.id;
+      }
+
+      // If not found, create a new one
+      const createResponse = await axios.post(
         'https://www.googleapis.com/calendar/v3/calendars',
         {
           summary: 'Centflow Schedule',
@@ -38,9 +56,9 @@ const GoogleCalendarButtonSchedule: React.FC<GoogleCalendarButtonScheduleProps> 
           },
         }
       );
-      return response.data.id;
+      return createResponse.data.id;
     } catch (error) {
-      console.error('Error creating calendar:', error);
+      console.error('Error finding or creating calendar:', error);
       throw error;
     }
   };
@@ -48,12 +66,13 @@ const GoogleCalendarButtonSchedule: React.FC<GoogleCalendarButtonScheduleProps> 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const calendarId = await createCalendar(tokenResponse.access_token);
+        const calendarId = await findOrCreateCalendar(tokenResponse.access_token);
         let addedCount = 0;
 
-        // Helper to parse local datetime string (YYYY-MM-DDTHH:mm) as local time
+        // Helper to parse local datetime string (YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss) as local time
         const parseLocalDateTime = (dateTimeStr: string): Date => {
-          const [datePart, timePart] = dateTimeStr.split('T');
+          const normalizedDateTimeStr = dateTimeStr.replace(/:\d{2}(\.\d{3})?$/, ''); // Remove seconds and milliseconds
+          const [datePart, timePart] = normalizedDateTimeStr.split('T');
           const [year, month, day] = datePart.split('-').map(Number);
           const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
           return new Date(year, month - 1, day, hours, minutes);
@@ -79,7 +98,7 @@ const GoogleCalendarButtonSchedule: React.FC<GoogleCalendarButtonScheduleProps> 
             colorIndex++;
           }
 
-          const calendarEvent = {
+          const calendarEvent: any = {
             summary: event.title,
             description: event.description || '',
             start: {
@@ -92,6 +111,11 @@ const GoogleCalendarButtonSchedule: React.FC<GoogleCalendarButtonScheduleProps> 
             },
             colorId: colorId,
           };
+
+          // Add recurrence if rrule is provided
+          if (event.rrule) {
+            calendarEvent.recurrence = [`RRULE:${event.rrule}`];
+          }
 
           await axios.post(
             `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,

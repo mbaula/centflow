@@ -4,6 +4,7 @@ export interface ScheduleEvent {
   end: string; // ISO format: "2025-12-15T12:00"
   description?: string;
   colorId?: string; // Optional Google Calendar color ID (1-11)
+  rrule?: string; // RRULE string (e.g., "FREQ=DAILY;UNTIL=20260301T235959")
 }
 
 export interface ScheduleData {

@@ -1,16 +1,23 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ScheduleData, ScheduleEvent } from '@/types/ScheduleEvent';
 import ScheduleEventEditor from './ScheduleEventEditor';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleCalendarButton from './GoogleCalendarButtonSchedule';
 import CalendarPreview from './CalendarPreview';
+import { expandRecurringEvents } from '@/utils/rruleExpander';
 
 const ScheduleInput: React.FC = () => {
   const [jsonInput, setJsonInput] = useState('');
   const [scheduleData, setScheduleData] = useState<ScheduleData | null>(null);
   const [parsedEvents, setParsedEvents] = useState<ScheduleEvent[]>([]);
+
+  // Move useMemo outside conditional render to follow Rules of Hooks
+  const expandedEvents = useMemo(() => {
+    if (parsedEvents.length === 0) return [];
+    return expandRecurringEvents(parsedEvents, 90);
+  }, [parsedEvents]);
 
   const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setJsonInput(e.target.value);
@@ -84,14 +91,20 @@ const ScheduleInput: React.FC = () => {
             <div>
               <h2 className="text-2xl font-bold text-gray-800">📅 Parsed Schedule</h2>
               <p className="text-sm text-gray-600 mt-1">
-                Timezone: {scheduleData.timezone} • {parsedEvents.length} events
+                Timezone: {scheduleData.timezone} • {parsedEvents.length} event{parsedEvents.length !== 1 ? 's' : ''}
+                {parsedEvents.some(e => e.rrule) && (
+                  <span className="ml-2 text-blue-600">(with recurring events)</span>
+                )}
               </p>
             </div>
             <div className="flex gap-2">
               <CalendarPreview 
-                events={parsedEvents} 
+                events={expandedEvents} 
                 timezone={scheduleData.timezone}
-                onEventsUpdate={setParsedEvents}
+                onEventsUpdate={(expanded) => {
+                  // Note: Updates to expanded events won't update the original recurring events
+                  // This is a limitation - users should edit the original events
+                }}
               />
               <GoogleCalendarButton 
                 events={parsedEvents} 
