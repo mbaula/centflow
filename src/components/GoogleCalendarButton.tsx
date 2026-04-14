@@ -32,19 +32,35 @@ const DAY_MAP: { [key: string]: number } = {
 };
 
 const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ events }) => {
+  /** Calendar day in local TZ at noon (stable weekday vs UTC-midnight `YYYY-MM-DD` strings). */
   const getFirstOccurrence = (startDate: Date, dayName: string): Date => {
     const targetDay = DAY_MAP[dayName];
-    const date = new Date(startDate);
+    const y = startDate.getFullYear();
+    const m = startDate.getMonth();
+    const d = startDate.getDate();
+    const date = new Date(y, m, d, 12, 0, 0, 0);
     while (date.getDay() !== targetDay) {
       date.setDate(date.getDate() + 1);
     }
     return date;
   };
 
+  const endOfLocalCalendarDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+
+  const formatRruleUntilLocalDate = (d: Date) =>
+    `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+
   const formatTimeForCalendar = (date: Date, timeStr: string) => {
-    const [time, period] = timeStr.toLowerCase().split(' ');
-    let [hours, minutes] = time.split(':').map(Number);
-    
+    // Centennial uses "11:30 AM"; Quest / UW often uses "11:30AM" (no space before am/pm).
+    const m = timeStr.trim().toLowerCase().match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/);
+    if (!m) {
+      throw new RangeError(`Invalid time format (expected e.g. 11:30 AM or 11:30AM): ${timeStr}`);
+    }
+    let hours = Number(m[1]);
+    const minutes = Number(m[2]);
+    const period = m[3];
+
     if (period === 'pm' && hours !== 12) {
       hours += 12;
     } else if (period === 'am' && hours === 12) {
@@ -52,7 +68,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ events }) =
     }
 
     const newDate = new Date(date);
-    newDate.setHours(hours, minutes, 0);
+    newDate.setHours(hours, minutes, 0, 0);
     return newDate.toISOString();
   };
 
@@ -99,9 +115,9 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ events }) =
         for (const event of events) {
           for (const day of event.meetingTime.days) {
             const firstOccurrence = getFirstOccurrence(event.meetingTime.dateRange.start, day);
-            
-            // Skip if the first occurrence is after the end date
-            if (firstOccurrence > event.meetingTime.dateRange.end) {
+            const rangeEnd = endOfLocalCalendarDay(event.meetingTime.dateRange.end);
+
+            if (firstOccurrence.getTime() > rangeEnd.getTime()) {
               continue;
             }
 
@@ -118,7 +134,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ events }) =
                 timeZone: 'America/Toronto',
               },
               recurrence: [
-                `RRULE:FREQ=WEEKLY;UNTIL=${event.meetingTime.dateRange.end.toISOString().split('T')[0].replace(/-/g, '')}`
+                `RRULE:FREQ=WEEKLY;UNTIL=${formatRruleUntilLocalDate(event.meetingTime.dateRange.end)}`,
               ],
               colorId: courseColorMap.get(event.courseCode),
             };

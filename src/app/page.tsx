@@ -2,6 +2,7 @@
 import Tabs from '@/components/Tabs';
 import TextInput from '@/components/TextInput';
 import ScheduleInput from '@/components/ScheduleInput';
+import UwFlowInput from '@/components/UwFlowInput';
 
 export default function Home() {
   const tabs = [
@@ -22,6 +23,16 @@ export default function Home() {
         <div>
           <h2 className="text-xl font-semibold mb-4">Centennial Course Schedule</h2>
           <TextInput />
+        </div>
+      ),
+    },
+    {
+      id: 'uwflow',
+      label: 'uwflow',
+      content: (
+        <div>
+          <h2 className="text-xl font-semibold mb-4">University of Waterloo (Quest)</h2>
+          <UwFlowInput />
         </div>
       ),
     },
